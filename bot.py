@@ -14,6 +14,7 @@ dp = Dispatcher(bot) #Создаем диспетчер, который упра
 
 @dp.message_handler(commands=["start"])
 async def start_command(message: types.Message): #Создаем ф-ию, которая реагирует на сообщение /start
+    print(message.from_user.username)
     await message.reply("Привет, на связи Сурикат! Если ты хочешь, чтобы я магическим способом узнал погоду, напиши мне свой город.")
 
 
@@ -51,11 +52,11 @@ async def get_weather(message: types.Message):
         temp_max = data["main"]["temp_max"] #Макс темп
         temp_min = data["main"]["temp_min"] #Мин темп
         wind = data["wind"]["speed"] #скорость ветра
-        sunrise = datetime.datetime.fromtimestamp(data["sys"]["sunrise"]).strftime('%d-%m-%Y %H:%M') #рассвет
-        sunset = datetime.datetime.fromtimestamp(data["sys"]["sunset"]).strftime('%d-%m-%Y %H:%M') #закат
+        sunrise = datetime.datetime.fromtimestamp(data["sys"]["sunrise"]).strftime('%d.%m.%Y %H:%M') #рассвет
+        sunset = datetime.datetime.fromtimestamp(data["sys"]["sunset"]).strftime('%d.%m.%Y %H:%M') #закат
         lenght_day = datetime.datetime.fromtimestamp(data["sys"]["sunset"]) - datetime.datetime.fromtimestamp(data["sys"]["sunrise"]) #Продолжительность дня
 
-        await message.reply(f"*** {datetime.datetime.now().strftime('%d-%m-%Y %H:%M')} ***\n"
+        await message.reply(f"*** {datetime.datetime.now().strftime('%d.%m.%Y %H:%M')} ***\n"
             f"Погода в городе: {city}\nСтрана: {country}\n"
             f"Температура: {cur_weather}C° {ws}\nМаксимальная температура: {temp_max}C°\nМинимальная температура: {temp_min}C°\n"
             f"Скорость ветра: {wind}\n"
