@@ -14,7 +14,7 @@ dp = Dispatcher(bot) #Создаем диспетчер, который упра
 
 @dp.message_handler(commands=["start"])
 async def start_command(message: types.Message): #Создаем ф-ию, которая реагирует на сообщение /start
-    print(message.from_user.username + " использует бота")
+    print(message.from_user.username,"использует бота")
     await message.reply("Привет, на связи Сурикат! Если ты хочешь, чтобы я магическим способом узнал погоду, напиши мне свой город.")
 
 
