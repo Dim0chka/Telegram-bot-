@@ -2,26 +2,44 @@ import requests
 import datetime
 import os
 
+from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram import dispatcher
+from aiogram.dispatcher.filters.state import State, StatesGroup
+from aiogram.dispatcher import FSMContext
 from config import open_weather_token
 from aiogram import Bot, types
 from aiogram.dispatcher import Dispatcher
 from aiogram.utils import executor 
-import keyboards as kb 
+from aiogram.types import ReplyKeyboardMarkup
+
+
+class Form(StatesGroup):
+    weather = State() 
 
 TOKEN = os.environ.get("TOKEN")
 bot = Bot(token=TOKEN)  #Создаем бота и передаем токен
-dp = Dispatcher(bot) #Создаем диспетчер, который управляет handler
+dp = Dispatcher(bot, storage=MemoryStorage()) #Создаем диспетчер, который управляет handler
+
 
 @dp.message_handler(commands=["start"])
 async def start_command(message: types.Message): #Создаем ф-ию, которая реагирует на сообщение /start
     print(message.from_user.username,"использует бота-сурикат")
-    await message.reply("Привет, на связи Сурикат! Что ты хочешь?",
-    reply_markup=kb.greet_kb)
+    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    button = ["/weather"]
+    keyboard.add(*button)
+              
+    text = "Привет, на связи Сурикат!\n\nСписок команд:\n/weather - посмотреть погоду в твоем городе"
+    await bot.send_message(message.from_user.id, text, reply_markup=keyboard)
 
 
-@dp.message_handler()
-async def get_weather(message: types.Message):
+@dp.message_handler(commands=['weather', 'profile'], state='*')
+async def command(message: types.Message):
+    await message.reply("Напиши мне свой город")
+    await Form.weather.set()
+
+
+@dp.message_handler(state=Form.weather)
+async def get_stats(message: types.Message, state: FSMContext):
 
     smile = {
         "Clear": "Ясно \U00002600",
@@ -69,6 +87,7 @@ async def get_weather(message: types.Message):
     except: #вывод ошибки
         await message.reply("Ты что-то напутал, напиши ещё раз свой город")
 
+    await state.finish()
 
 if __name__ == "__main__":
     executor.start_polling(dp) #Запускаем бота
