@@ -7,6 +7,7 @@ from config import open_weather_token
 from aiogram import Bot, types
 from aiogram.dispatcher import Dispatcher
 from aiogram.utils import executor 
+import keyboards as kb 
 
 TOKEN = os.environ.get("TOKEN")
 bot = Bot(token=TOKEN)  #Создаем бота и передаем токен
@@ -15,7 +16,8 @@ dp = Dispatcher(bot) #Создаем диспетчер, который упра
 @dp.message_handler(commands=["start"])
 async def start_command(message: types.Message): #Создаем ф-ию, которая реагирует на сообщение /start
     print(message.from_user.username,"использует бота-сурикат")
-    await message.reply("Привет, на связи Сурикат! Если ты хочешь, чтобы я магическим способом узнал погоду, напиши мне свой город.")
+    await message.reply("Привет, на связи Сурикат! Что ты хочешь?",
+    reply_markup=kb.greet_kb)
 
 
 @dp.message_handler()
