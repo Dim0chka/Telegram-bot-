@@ -10,20 +10,19 @@ from config import open_weather_token
 from aiogram import Bot, types
 from aiogram.dispatcher import Dispatcher
 from aiogram.utils import executor 
-from aiogram.types import ReplyKeyboardMarkup
 
 
 class Form(StatesGroup):
     weather = State() 
 
 TOKEN = os.environ.get("TOKEN")
-bot = Bot(token=TOKEN)  #Создаем бота и передаем токен
+bot = Bot(token=TOKEN, parse_mode=types.ParseMode.HTML)  #Создаем бота, передаем токен и подключаем html 
 dp = Dispatcher(bot, storage=MemoryStorage()) #Создаем диспетчер, который управляет handler
 
 
 @dp.message_handler(commands=["start"])
 async def start_command(message: types.Message): #Создаем ф-ию, которая реагирует на сообщение /start
-    print(message.from_user.username,"использует бота-сурикат")
+    print(message.from_user.username,"использует бота")
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
     button = ["/weather"]
     keyboard.add(*button)
@@ -36,6 +35,7 @@ async def start_command(message: types.Message): #Создаем ф-ию, кот
 async def command(message: types.Message):
     await message.reply("Напиши мне свой город")
     await Form.weather.set()
+    print(message.from_user.username,"использует бота для погоды")
 
 
 @dp.message_handler(state=Form.weather)
@@ -77,17 +77,17 @@ async def get_stats(message: types.Message, state: FSMContext):
         lenght_day = datetime.datetime.fromtimestamp(data["sys"]["sunset"]) - datetime.datetime.fromtimestamp(data["sys"]["sunrise"]) #Продолжительность дня
 
         await message.reply(f"*** {datetime.datetime.now().strftime('%d.%m.%Y %H:%M')} ***\n"
-            f"Погода в городе: {city}\nСтрана: {country}\n"
-            f"Температура: {cur_weather}C° {ws}\nМаксимальная температура: {temp_max}C°\nМинимальная температура: {temp_min}C°\n"
-            f"Скорость ветра: {wind}\n"
-            f"Влажность: {humidity}%\nРассвет: {sunrise}\nЗакат: {sunset}\nПродолжительность дня: {lenght_day}\n"
-            f"*** Хорошего дня! А я пойду самосовершенствоваться) ***"
+            f"<b>Погода в городе:</b>  {city}\n<b>Страна:</b> {country}\n"
+            f"<b>Температура:</b> {round(cur_weather)} °С, {ws}\n<b>Макс/мин температура:</b> {round(temp_max)} °С / {round(temp_min)} °С\n"
+            f"<b>Скорость ветра:</b> {round(wind)} м/c\n"
+            f"<b>Влажность:</b> {humidity}%\n<b>Рассвет:</b> {sunrise}\n<b>Закат:</b> {sunset}\n<b>Световой день:</b> {lenght_day}\n"
         )
+    
+        await state.finish()
 
     except: #вывод ошибки
         await message.reply("Ты что-то напутал, напиши ещё раз свой город")
 
-    await state.finish()
 
 if __name__ == "__main__":
     executor.start_polling(dp) #Запускаем бота
