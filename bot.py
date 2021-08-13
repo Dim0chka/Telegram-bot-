@@ -32,7 +32,7 @@ async def start_command(message: types.Message): #Создаем ф-ию, кот
     button = ["/weather", "/calendar"]
     keyboard.add(*button)
               
-    text = "Привет, на связи Сурикат!\n\nСписок команд:\n/weather - посмотреть погоду в твоем городе"
+    text = "Привет, на связи Сурикат!\n\nСписок команд:\n/weather - посмотреть погоду в твоем городе\n/calendar - посмотреть календарь"
     await bot.send_message(message.from_user.id, text, reply_markup=keyboard)
 
 
