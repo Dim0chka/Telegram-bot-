@@ -1,12 +1,11 @@
-import logging 
+import logging
+from aiogram.dispatcher.filters.builtin import Command 
 import requests
 import datetime
 import os
 
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram_calendar import simple_cal_callback, SimpleCalendar
-from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove, ReplyKeyboardMarkup
-from aiogram.dispatcher.filters import Text
 from aiogram import dispatcher
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.dispatcher import FSMContext
@@ -95,12 +94,12 @@ async def get_stats(message: types.Message, state: FSMContext):
         await message.reply("Ты что-то напутал, напиши ещё раз свой город")
 
 
-@dp.message_handler(Text(equals=['calendar'], ignore_case=True))
-async def nav_cal_handler(message: Message):
+@dp.message_handler(commands=['calendar'])
+async def nav_cal_handler(message: types.Message):
     await message.answer("Выберите дату: ", reply_markup=await SimpleCalendar().start_calendar())
 
 @dp.callback_query_handler(simple_cal_callback.filter())
-async def process_simple_calendar(callback_query: CallbackQuery, callback_data: dict):
+async def process_simple_calendar(callback_query: types.CallbackQuery, callback_data: dict):
     selected, date = await SimpleCalendar().process_selection(callback_query, callback_data)
     if selected:
         await callback_query.message.answer(
