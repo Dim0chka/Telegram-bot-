@@ -1,8 +1,12 @@
+import logging 
 import requests
 import datetime
 import os
 
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
+from aiogram_calendar import simple_cal_callback, SimpleCalendar
+from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove, ReplyKeyboardMarkup
+from aiogram.dispatcher.filters import Text
 from aiogram import dispatcher
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.dispatcher import FSMContext
@@ -11,6 +15,8 @@ from aiogram import Bot, types
 from aiogram.dispatcher import Dispatcher
 from aiogram.utils import executor 
 
+
+logging.basicConfig(level=logging.INFO)
 
 class Form(StatesGroup):
     weather = State() 
@@ -24,7 +30,7 @@ dp = Dispatcher(bot, storage=MemoryStorage()) #Создаем диспетчер
 async def start_command(message: types.Message): #Создаем ф-ию, которая реагирует на сообщение /start
     print(message.from_user.username,"использует бота")
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    button = ["/weather"]
+    button = ["/weather", "/calendar"]
     keyboard.add(*button)
               
     text = "Привет, на связи Сурикат!\n\nСписок команд:\n/weather - посмотреть погоду в твоем городе"
@@ -89,6 +95,20 @@ async def get_stats(message: types.Message, state: FSMContext):
         await message.reply("Ты что-то напутал, напиши ещё раз свой город")
 
 
+@dp.message_handler(Text(equals=['calendar'], ignore_case=True))
+async def nav_cal_handler(message: types.Message):
+    await message.answer("Выберите дату: ", reply_markup=await SimpleCalendar().start_calendar())
+
+@dp.callback_query_handler(simple_cal_callback.filter())
+async def process_simple_calendar(callback_query: CallbackQuery, callback_data: dict):
+    selected, date = await SimpleCalendar().process_selection(callback_query, callback_data)
+    if selected:
+        await callback_query.message.answer(
+            f'Ты выбрал {date.strftime("%d.%m.%Y")}',
+            reply_markup=keyboard
+        )
+
+
 if __name__ == "__main__":
-    executor.start_polling(dp) #Запускаем бота
+    executor.start_polling(dp, skip_updates=True) #Запускаем бота
 
