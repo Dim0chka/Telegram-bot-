@@ -96,7 +96,7 @@ async def get_stats(message: types.Message, state: FSMContext):
 
 
 @dp.message_handler(Text(equals=['calendar'], ignore_case=True))
-async def nav_cal_handler(message: types.Message):
+async def nav_cal_handler(message: Message):
     await message.answer("Выберите дату: ", reply_markup=await SimpleCalendar().start_calendar())
 
 @dp.callback_query_handler(simple_cal_callback.filter())
