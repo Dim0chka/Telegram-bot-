@@ -104,11 +104,10 @@ async def process_simple_calendar(callback_query: CallbackQuery, callback_data: 
     selected, date = await SimpleCalendar().process_selection(callback_query, callback_data)
     if selected:
         await callback_query.message.answer(
-            f'Ты выбрал {date.strftime("%d.%m.%Y")}',
-            reply_markup=keyboard
+            f'Ты выбрал {date.strftime("%d.%m.%Y")}'
         )
 
 
 if __name__ == "__main__":
-    executor.start_polling(dp, skip_updates=True) #Запускаем бота
+    executor.start_polling(dp) #Запускаем бота
 
